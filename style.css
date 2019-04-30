@@ -1,0 +1,18 @@
+
+BODY{width:40%; height:400px;}
+
+.mainLayout{
+    width:350px;
+    height:400px;
+}
+
+.toolbar{
+    display:block;
+    float:right;
+}
+
+
+/*
+    js에서 제어하기 위하여 css파일 제거해야함. width,height을 
+    획일적으로 제어하기 위함.
+*/
