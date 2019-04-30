@@ -119,12 +119,14 @@ view.drawClockNumber = function()
     }
 }
 
-state.create = function(end)
+state.create = function(_endTime)
 {
     state.timerId;
     state.isStart = false;
-    state.defaultTime = end;
-    state.endTime = end;
+    state.defaultTime = _endTime;
+    state.endTime = _endTime;
+
+    state.restartEvent = new Event('trigger');
 }
 
 state.interval = function(t_unit)
@@ -155,12 +157,19 @@ state.interval = function(t_unit)
     }
 }
 
+state.btnTrigger = (function()
+{
+    document.addEventListener('trigger',function(){
+        alert('t');
+    },false);
+})();
 
 controls.startAndStop = function(){
     var button = elt('button',{type:'button', id:'switch'},'START');
     button.addEventListener('click', function(){
         if(!state.isStart)
         {
+            document.dispatchEvent(state.restartEvent);
             state.isStart = true;
             button.innerHTML = 'STOP';
             state.interval(state.endTime);
@@ -175,11 +184,13 @@ controls.startAndStop = function(){
 
 controls.restart = function(){
     var button = elt('button',{type:'button', id:'restart'},'RESTART');
-    button.disabled = 'disabled';
+
+    /*
     button.addEventListener('click', function(){
         clearInterval(state.timerId);
         state.interval(state.defaultTime);
     })
+    */
     return button;
 }
 
@@ -190,7 +201,7 @@ return{
         var ms = 1000;
         var viewPannel = view.create(x, y, radius);
 
-        state.create(60 * ms);
+        state.create(6 * ms);
 
         var toolbar = elt('div', {class:'toolbar'});
         for(var name in controls)

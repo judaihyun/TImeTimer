@@ -1,25 +1,5 @@
 'use strict'
 
-function readFile(filename, callback)
-{
-    var req = new XMLHttpRequest();
-    req.onreadystatechange = function()
-    {
-        if(req.readyState == 4)
-        {
-            if(req.status == 200)
-            {
-                callback(req.response, false/* no error */);
-            }else{
-                callback(null, true/* error */);
-            }
-        }
-    }
-    req.responseType = "json";
-    req.open("GET", filename, true);
-    req.send(null);
-}
-
 function elt(name, attributes)
 {
     var node = document.createElement(name);
