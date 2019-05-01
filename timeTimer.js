@@ -5,8 +5,8 @@ var timeTimer = timeTimer || {};
 
 document.addEventListener('DOMContentLoaded', function(){
 
-    var myWindow = new timeTimer();
-    myWindow.initTimeTimer(170, 170, 150);
+    var timerObj = new timeTimer();
+    timerObj.initTimeTimer(170, 170, 150);
 
     /*
 
@@ -39,7 +39,7 @@ view.create = function(x, y, radius)
     if(view.ctx) delete view.ctx;
     view.ctx = view.canvas.getContext('2d')
 
-    view.timeDiv = elt('div', {id:'time'});
+    view.timeDiv = elt('div', {id:'displayTime'});
 
     view.drawClockFace(); 
 
@@ -125,29 +125,60 @@ state.create = function(_endTime)
     state.isStart = false;
     state.defaultTime = _endTime;
     state.endTime = _endTime;
+    state.startStopButton;
+    state.restartBtn;
 
     state.restartEvent = new Event('trigger');
+    document.addEventListener('trigger',function(){
+        console.warn('trigger Event - activate ( timer_id : ' + state.timerId + ')');
+        if(state.isStart){
+            clearInterval(state.timerId);
+            state.interval(state.defaultTime);
+            state.restartBtn.style.visibility = 'hidden';
+        }else{
+            state.restartBtn.style.visibility = 'visible';
+            clearInterval(state.timerId);
+        }
+    },false);
+}
+
+state.startEventProcess = function()
+{
+    console.warn('state.startEventProcess() - activate');
+    state.interval(state.endTime);
+    state.startStopButton.innerHTML = 'STOP';
+    state.restartBtn.style.visibility = 'visible';
+    state.isStart = true;
+}
+
+state.stopEventProcess = function()
+{
+    console.warn('state.stopEventProcess() - activate ( timer_id : ' + state.timerId + ')');
+    clearInterval(state.timerId);
+    state.startStopButton.innerHTML = 'START';
+    state.isStart = false;
 }
 
 state.interval = function(t_unit)
 {
+    console.warn('state.interval() - activate ( t_unit : ' + t_unit + ')');
     if(t_unit < 0) return;
     const adjustInterval = 10;
-    var dd = document.getElementById('time');
+    var displayTime = document.getElementById('displayTime');
     var expectTime = Date.now() + t_unit;
     var elapseTime;
     console.time();
     state.timerId = setInterval(adjustTime, Math.max(0, adjustInterval - elapseTime));
-
+    console.warn('state.interval() - timerId ( ' + state.timerId + ')');
     function adjustTime()
     { 
         elapseTime = Date.now() - expectTime;
         state.endTime = Math.abs(elapseTime);
         var temp = Math.abs(elapseTime) / 1000;
-        dd.innerHTML = temp;
+        displayTime.innerHTML = temp;
         if(elapseTime > 0)
         {
-            dd.innerHTML = temp;
+            displayTime.innerHTML = temp;
             console.timeEnd();
             state.endTime = state.defaultTime;
             clearInterval(state.timerId);
@@ -157,41 +188,34 @@ state.interval = function(t_unit)
     }
 }
 
-state.btnTrigger = (function()
-{
-    document.addEventListener('trigger',function(){
-        alert('t');
-    },false);
-})();
 
 controls.startAndStop = function(){
-    var button = elt('button',{type:'button', id:'switch'},'START');
-    button.addEventListener('click', function(){
+    state.startStopButton = elt('button',{type:'button', id:'switch'},'START');
+    state.startStopButton.addEventListener('click', function(){
+    console.warn('controls.startAndStop() - startStopButton clicked');
+
         if(!state.isStart)
         {
-            document.dispatchEvent(state.restartEvent);
-            state.isStart = true;
-            button.innerHTML = 'STOP';
-            state.interval(state.endTime);
+            state.startEventProcess();
         }else{
-            clearInterval(state.timerId);
-            button.innerHTML = 'START';
-            state.isStart = false;
+            state.stopEventProcess(); 
         }
-    })
-    return button;
+
+        //document.dispatchEvent(state.restartEvent);
+    });
+    return state.startStopButton;
 }
 
 controls.restart = function(){
-    var button = elt('button',{type:'button', id:'restart'},'RESTART');
+    state.restartBtn = elt('button',{type:'button', id:'restart'},'RESTART');
+    state.restartBtn.style.visibility = 'hidden';
 
-    /*
-    button.addEventListener('click', function(){
-        clearInterval(state.timerId);
-        state.interval(state.defaultTime);
-    })
-    */
-    return button;
+    state.restartBtn.addEventListener('click', function(){
+        console.warn('controls.restart() - restartBtn clicked');
+        document.dispatchEvent(state.restartEvent);
+    });
+    
+    return state.restartBtn;
 }
 
 return{
@@ -201,7 +225,7 @@ return{
         var ms = 1000;
         var viewPannel = view.create(x, y, radius);
 
-        state.create(6 * ms);
+        state.create(60 * ms);
 
         var toolbar = elt('div', {class:'toolbar'});
         for(var name in controls)
