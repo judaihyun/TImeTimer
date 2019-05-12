@@ -1,9 +1,11 @@
 
-BODY{width:40%; height:400px;}
+/*BODY{width:40%; height:400px;}
+*/
 
 .mainLayout{
     width:350px;
     height:400px;
+    float:right;
 }
 
 .toolbar{
