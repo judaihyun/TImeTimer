@@ -13,7 +13,6 @@ function starter()
 
 document.addEventListener('DOMContentLoaded',function(){
 
-   
 timeTimer = function()
 {
 
@@ -21,32 +20,34 @@ timeTimer = function()
     var view     = Object.create(null);
     var controls = Object.create(null);
 
-    var CLOCKFACE_STROKE_STYLE = 'red',
-        CLOCKFACE_CENTER_RADIUS =  5,
-        CLOCKFACE_RADIUS = 120,
-        CLOCKNUMBER_STROKE_STYLE = 'black',
-        CLOCKNUMBER_TEXT_ALIGN = 'center',
-        TICK_SHORT_STROKE_STYLE = 'black',
-        TICK_WIDTH = 10,
+    const CLOCKFACE_STROKE_STYLE = 'red',
+          CLOCKFACE_CENTER_RADIUS =  5,
+          CLOCKFACE_RADIUS = 120,
+          CLOCKNUMBER_STROKE_STYLE = 'black',
+          CLOCKNUMBER_TEXT_ALIGN = 'center',
+          TICK_SHORT_STROKE_STYLE = 'black',
+          TICK_WIDTH = 10,
 
-        MAX_TIME_COUNT = 60;
+          MAX_TIME_COUNT = 60;
 
 
 
-view.create = function(radius)
+view.create = radius =>
 {
     view.radius = radius;
 
     view.canvas = elt('canvas', {id:'canvas', width:'350', height:'400'});
     view.circle = {
-        x : this.canvas.width / 2,
-        y : this.canvas.height / 2
+        x : view.canvas.width / 2,
+        y : view.canvas.height / 2 + 0.5
     }
 
     if(view.ctx) delete view.ctx;
     view.ctx = view.canvas.getContext('2d')
 
     view.timeDiv = elt('div', {id:'displayTime'});
+
+
 
     view.drawClockFace(); 
 
@@ -56,9 +57,11 @@ view.create = function(radius)
 
     view.drawDefaultInnerCircle();
 
+    //view.drawGrid('gray', 2, 2);
+    
+
     view.updateClockEvent = new Event('updateClock');
     document.addEventListener('updateClock',view.drawInnerCircle);
-
 
 
 
@@ -71,12 +74,10 @@ view.create = function(radius)
     
     function windowToCanvas(x, y)
     {
-    var bbox = view.canvas.getBoundingClientRect();
-    return { x: x - bbox.left * (view.canvas.width / bbox.width),
-      y: y - bbox.top * (view.canvas.height / bbox.height) };
+        var bbox = view.canvas.getBoundingClientRect();
+        return { x: x - bbox.left * (view.canvas.width / bbox.width),
+        y: y - bbox.top * (view.canvas.height / bbox.height) };
     }
-
-
 
 
     return elt(
@@ -84,13 +85,39 @@ view.create = function(radius)
     );
 }
 
+view.drawGrid = (color, stepx, stepy) =>
+{
+    view.ctx.save();
+    view.ctx.strokeStyle = color;
+    view.ctx.lineWidth = 0.5;
+    
+    for(var i = stepx + 0.5; i < view.ctx.canvas.width; i += stepx)
+    {
+        view.ctx.beginPath();
+        view.ctx.moveTo(i, 0);
+        view.ctx.lineTo(i, view.ctx.canvas.height);
+        view.ctx.stroke();
+    }
 
-view.drawClockFace = function()
+   
+    for(var i = stepy + 0.5; i < view.ctx.canvas.height; i += stepy)
+    {
+        view.ctx.beginPath();
+        view.ctx.moveTo(0, i);
+        view.ctx.lineTo(view.ctx.canvas.width, i);
+        view.ctx.stroke();
+    }
+   
+
+    view.ctx.restore();
+}
+
+
+view.drawClockFace = () =>
 {
     view.ctx.save();
     view.ctx.beginPath();
     view.ctx.strokeStyle = CLOCKFACE_STROKE_STYLE;
-    //arc(x, y, radius, startAngle, endAngle, anti)
     view.ctx.arc(view.circle.x, view.circle.y,
          CLOCKFACE_RADIUS, 0, 360, false);
     view.ctx.stroke();
@@ -102,16 +129,12 @@ view.drawClockFace = function()
     view.ctx.restore();
 }
 
-
-
-view.drawTicks = function()
+view.drawTicks = () =>
 {
     var radius = CLOCKFACE_RADIUS,
         ANGLE_MAX = Math.PI * 2,
         ANGLE_DELTA = Math.PI / 30,  // tick angle (180도 / 갯수) == 1파이이므로
         TICK_WIDTH;
-
-    //console.log(`drawTicks() - radius : ${radius}, angleMax : ${ANGLE_MAX}, angleDelta : ${ANGLE_DELTA}`);
 
     view.ctx.save();
     for(var angle = 0, cnt = 0; angle < ANGLE_MAX;
@@ -123,7 +146,7 @@ view.drawTicks = function()
 
 }
 
-view.drawTick = function(angle, radius, cnt)
+view.drawTick = (angle, radius, cnt) =>
 {
     //console.log('drawTick() - angle : ' + angle + ', radius : ' + radius + ', cnt : ' + cnt);
     var tickWidth = cnt % 5 === 0 ? TICK_WIDTH : TICK_WIDTH / 2;
@@ -145,7 +168,8 @@ view.drawTick = function(angle, radius, cnt)
     view.ctx.stroke();
     view.ctx.restore();
 }
-view.drawDefaultInnerCircle = function()
+
+view.drawDefaultInnerCircle = () =>
 {
     view.ctx.save();
     view.ctx.beginPath();
@@ -158,43 +182,41 @@ view.drawDefaultInnerCircle = function()
     view.ctx.restore(); 
 }
 
-view.drawInnerCircle = function(e)
+view.drawInnerCircle = (evt) =>
 {
-    //console.log(e.detail);
     var ANGLE_DELTA = (Math.PI * 2) / 60;
-    var angle = (Math.PI * 1.5) - ANGLE_DELTA * e.detail;
-    var degree = (180/Math.PI) * angle;
+    var angle = (Math.PI * 1.5) - ANGLE_DELTA * evt.detail;
+    var degree = (180 / Math.PI) * angle;
     
     view.ctx.save();
     view.ctx.beginPath();
-    view.ctx.strokeStyle = 'white';
-    view.ctx.fillStyle = 'white';
+    view.ctx.fillStyle = 'rgba(255, 255, 255, .2)';
     view.ctx.moveTo(view.circle.x, view.circle.y);
     view.ctx.arc(view.circle.x, view.circle.y,
                  CLOCKFACE_RADIUS - TICK_WIDTH,
                  Math.PI * 1.5, angle, true);
-    console.log('degree : ' + degree);
-    console.log(`angle : ${angle}, radius : ${CLOCKFACE_RADIUS - TICK_WIDTH}`);
+    //console.log('degree : ' + degree);
+    //console.log(`angle : ${angle}, radius : ${CLOCKFACE_RADIUS - TICK_WIDTH}`);
+    view.ctx.closePath();
     view.ctx.fill();
     view.ctx.restore();
 }
 
-view.drawClockNumber = function()
+view.drawClockNumber = () =>
 {
     var ang;
     var num;
-    var radius = view.radius;
+    var radius = view.radius - 10;
     view.ctx.save();
     view.ctx.translate(view.circle.x, view.circle.y);
-    view.ctx.font = radius*0.15 + "px arial";
+    view.ctx.font = radius*0.13 + "px arial";
     view.ctx.textBaseline = "middle";
     view.ctx.textAlign = CLOCKNUMBER_TEXT_ALIGN;
     view.ctx.strokeStyle = CLOCKNUMBER_STROKE_STYLE;
-    console.log('radius : ' + radius);
+   
     var realNum = 0;
     for(num = 0; num < 12; num++)
     {
-    
         ang = num * Math.PI / 6;
         view.ctx.rotate(ang);
         view.ctx.translate(0, -radius);
@@ -209,7 +231,7 @@ view.drawClockNumber = function()
     view.ctx.restore();
 }
 
-state.create = function(_endTime)
+state.create = (_endTime) =>
 {
     state.timerId;
     state.isStart = false;
@@ -219,47 +241,54 @@ state.create = function(_endTime)
     state.restartBtn;
 
     state.restartEvent = new Event('resTrigger');
-    document.addEventListener('resTrigger',resTrigger);
-   
+    document.addEventListener('resTrigger', state.resTrigger);
 }
 
- 
-function resTrigger()
+state.resTrigger = () =>
 {
     console.info(`resTrigger Event - activate ( timer_id : ${state.timerId} , ${state.isStart} )`);
-    if(state.isStart){
-        clearInterval(state.timerId);
+    if(state.isStart)
+    {
+        view.drawDefaultInnerCircle();
         state.restartBtn.style.visibility = 'hidden';
-        state.displayTime.innerHTML = state.defaultTime;
         state.startStopButton.innerHTML = 'START';
         state.isStart = false
+        state.clearInterval();
     }else{
         state.restartBtn.style.visibility = 'visible';
-        clearInterval(state.timerId);
-        state.displayTime.innerHTML = state.defaultTime;
+        view.drawDefaultInnerCircle();
+        state.clearInterval();
     }
 }
-state.updateClock = function(elapseTime)
+state.clearInterval = () =>
 {
-    /*
-    document.dispatchEvent(view.updateClockEvent,
-       {detail: elapseTime} );
-       */
-    document.dispatchEvent(new CustomEvent('updateClock',
-     { detail: (MAX_TIME_COUNT - Math.floor(elapseTime)) }));
-
+    clearInterval(state.timerId);
+    state.endTime = state.defaultTime;
+    state.displayTime.innerHTML = state.defaultTime;
 }
 
-state.interval = function(t_unit)
+state.stopInterval = () =>
+{
+    clearInterval(state.timerId);
+}
+
+state.updateClock = elapseTime => 
+{
+    document.dispatchEvent(new CustomEvent('updateClock',
+     { detail: (MAX_TIME_COUNT - Math.floor(elapseTime)) }));
+}
+
+state.interval = t_unit =>
 {
     if(t_unit < 0) return;
-    const adjustInterval = 10;
+    const adjustInterval = 1000;
     state.displayTime = document.getElementById('displayTime');
     var expectTime = Date.now() + t_unit;
     var elapseTime;
     console.time();
     state.timerId = setInterval(adjustTime, Math.max(0, adjustInterval - elapseTime));
     console.info(`state.interval() - activate ( t_unit : ${t_unit}, timerId : ${state.timerId} )`);
+  
     function adjustTime()
     { 
         elapseTime = Date.now() - expectTime;
@@ -274,14 +303,14 @@ state.interval = function(t_unit)
             state.displayTime.innerHTML = temp;
             console.timeEnd();
             state.endTime = state.defaultTime;
-            clearInterval(state.timerId);
+            state.clearInterval();
             return;
         } 
         elapseTime += adjustInterval;
     }
 }
 
-state.startEventProcess = function()
+state.startEventProcess = () =>
 {
     console.info('state.startEventProcess() - activate');
     state.interval(state.endTime);
@@ -290,31 +319,29 @@ state.startEventProcess = function()
     state.isStart = true;
 }
 
-state.stopEventProcess = function()
+state.stopEventProcess = () =>
 {
     console.info('state.stopEventProcess() - activate ( timer_id : ' + state.timerId + ')');
-    clearInterval(state.timerId);
+    state.stopInterval();
     state.startStopButton.innerHTML = 'START';
     state.isStart = false;
 }
 
-controls.startAndStop = function(){
+controls.startAndStop = () =>
+{
     state.startStopButton = elt('button',{type:'button', id:'switch'},'START');
-    state.startStopButton.addEventListener('click', function(){
-    console.info('controls.startAndStop() - startStopButton clicked');
-
-        if(!state.isStart)
-        {
-            state.startEventProcess();
-        }else{
-            state.stopEventProcess(); 
-        }
+    state.startStopButton.addEventListener('click', function()
+    {
+        console.info('controls.startAndStop() - startStopButton clicked');
+    
+        !state.isStart ? state.startEventProcess() : state.stopEventProcess();
 
     });
     return state.startStopButton;
 }
 
-controls.restart = function(){
+controls.restart = () =>
+{
     state.restartBtn = elt('button',{type:'button', id:'restart'},'RESTART');
     state.restartBtn.style.visibility = 'hidden';
 
@@ -327,7 +354,7 @@ controls.restart = function(){
 }
 
 return{
-    initTimeTimer : function(radius)
+    initTimeTimer : (radius) =>
     {
         console.info(`initTimeTimer is activated `);
         var ms = 1000;
@@ -342,8 +369,6 @@ return{
 
         viewPannel.appendChild(toolbar);
 
-      //document.body.appendChild(viewPannel);
-        
         document.body.insertBefore(viewPannel, document.body.firstChild);
     }
 }
