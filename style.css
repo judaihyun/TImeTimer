@@ -1,20 +1,38 @@
-
-/*BODY{width:40%; height:400px;}
-*/
-
 .mainLayout{
-    width:350px;
-    height:400px;
-    float:right;
+    position: fixed; 
+    user-select: none; 
+    top: 12px; 
+    right: 30px; 
+    bottom: initial; 
+    left: initial; 
+    width: 306px; 
+    height: 579px; 
+    border: 0px; 
+    z-index: 2147483645; 
+    clip: auto; 
+    display: block !important;
+}
+
+#displayTime{
+    color: white;
+    opacity: 0.6;
+    background-color: rgba(0,0,0,0.5);
+    position: absolute;
+    top: 33%;
+    right: 36%;
+
 }
 
 .toolbar{
     display:block;
+    text-align: center;
     float:right;
 }
 
+.start-btn, .stop-btn, .restart-btn{
+    width:10%;
+    height:10%;
+    cursor:pointer;
+}
 
-/*
-    js에서 제어하기 위하여 css파일 제거해야함. width,height을 
-    획일적으로 제어하기 위함.
-*/
+
