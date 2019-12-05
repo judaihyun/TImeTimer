@@ -3,6 +3,16 @@
 var timeTimer = timeTimer || {};
 
 
+document.addEventListener('DOMContentLoaded', ()=> {
+
+    let radius = 150;
+    var time = timeTimer();
+    time.setDefaultTime(6);
+    time.setRadius(radius);
+    time.start();
+
+},false);
+
 
 
 timeTimer = function()
@@ -188,7 +198,8 @@ view.drawInnerCircle = (evt) =>
 
     view.ctx.save();
     view.ctx.beginPath();
-    view.ctx.fillStyle = 'rgba(255, 255, 255, .2)';
+    view.ctx.fillStyle = 'rgba(255, 255, 255, .1)';
+    //view.ctx.strokeStyle = 'rgba(255, 255, 255, .1)';
     view.ctx.moveTo(view.circle.x, view.circle.y);
     view.ctx.arc(view.circle.x, view.circle.y,
                  CLOCKFACE_RADIUS - TICK_WIDTH + 0.5,
@@ -196,6 +207,7 @@ view.drawInnerCircle = (evt) =>
     //console.log('degree : ' + degree);
     //console.log(`angle : ${angle}, radius : ${CLOCKFACE_RADIUS - TICK_WIDTH}`);
     view.ctx.closePath();
+    //view.ctx.stroke();
     view.ctx.fill();
     view.ctx.restore();
 }
@@ -346,7 +358,7 @@ state.stopEventProcess = () =>
 controls.start = () =>
 {
     state.startButton = elt('img',{class:'start-btn',
-                                   src:chrome.runtime.getURL('images/startBtn.png'),
+                                   src:'images/startBtn.png',
                                    style:'visibility:visible;'});
 
     state.startButton.addEventListener('click', state.startEventProcess);
@@ -355,10 +367,8 @@ controls.start = () =>
 
 controls.stop = () =>
 {
-    const imgSrc = chrome.runtime.getURL('images/stopBtn.png');
-    console.log(imgSrc);
     state.stopButton = elt('img',{class:'stop-btn',
-                                  src: imgSrc,
+                                  src: 'images/stopBtn.png',
                                   style:'visibility:hidden;'});
 
     state.stopButton.addEventListener('click', state.stopEventProcess);
@@ -368,7 +378,7 @@ controls.stop = () =>
 controls.restart = () =>
 {
     state.restartBtn = elt('img',{class:'restart-btn',
-                                 src:chrome.runtime.getURL('images/restartBtn.png'),
+                                 src:'images/restartBtn.png',
                                  style:'visibility:hidden;'});
 
     state.restartBtn.addEventListener('click', function(){
@@ -428,9 +438,3 @@ return{
 
 
 
-
-    let radius = 150;
-    var time = timeTimer();
-    time.setDefaultTime(6);
-    time.setRadius(radius);
-    time.start();

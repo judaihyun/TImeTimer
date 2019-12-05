@@ -17,6 +17,7 @@
           "css": ["style.css"],
           "js": ["elt.js","timeTimer.js"]
         }
-    ]
+    ],
+    "web_accessible_resources": ["images/*.png"]
     
   }
