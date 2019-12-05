@@ -2,7 +2,8 @@
 
 
 
-![timeTimerCapture](https://user-images.githubusercontent.com/10599877/70204134-ba6a8b80-1762-11ea-8401-f8d8b5aff75b.png)
+![timeTimerCapture](https://user-images.githubusercontent.com/10599877/70204174-e423b280-1762-11ea-85b3-a9c05c2ac35e.png)
+
 
 
 Usage
