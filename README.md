@@ -1,5 +1,10 @@
 # TimeTimer for Chrome Extension 
 
+
+
+![timeTimerCapture](https://user-images.githubusercontent.com/10599877/70204134-ba6a8b80-1762-11ea-8401-f8d8b5aff75b.png)
+
+
 Usage
 
 1. clone git repository
